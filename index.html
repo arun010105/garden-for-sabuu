@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A GARDEN FOR MY PRINCESS — SABUUUU 👑🌷</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #02030a;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: #fff6e5;
+      user-select: none;
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .letterbox {
+      position: fixed;
+      left: 0;
+      width: 100%;
+      height: 5.5vh;
+      background: linear-gradient(to bottom, #000000, rgba(0, 0, 0, 0.92));
+      z-index: 5;
+      pointer-events: none;
+    }
+    .letterbox.top { top: 0; }
+    .letterbox.bottom {
+      bottom: 0;
+      background: linear-gradient(to top, #000000, rgba(0, 0, 0, 0.92));
+    }
+
+    #vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      background: radial-gradient(circle at center, transparent 58%, rgba(2, 3, 12, 0.62) 100%);
+    }
+
+    #ui-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 7vh 5vw;
+      text-align: center;
+    }
+
+    #title-screen {
+      position: absolute;
+      top: 11vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 980px;
+      opacity: 0;
+      transition: opacity 2.0s ease, transform 2.0s ease;
+    }
+
+    #title-screen.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .royal-subtitle {
+      font-size: clamp(0.85rem, 1.5vw, 1.15rem);
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: #f6d58e;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 0 18px rgba(255, 211, 120, 0.75);
+    }
+
+    .main-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.45rem, 3.5vw, 3.0rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1.25;
+      background: linear-gradient(135deg, #fff5d6 0%, #ffd57e 38%, #ffb6d5 70%, #ffe6a3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 22px rgba(255, 198, 112, 0.6));
+    }
+
+    #quote-box {
+      position: absolute;
+      bottom: 12.5vh;
+      left: 50%;
+      transform: translateX(-50%) translateY(18px);
+      width: 90%;
+      max-width: 840px;
+      opacity: 0;
+      transition: opacity 2.0s ease, transform 2.0s ease;
+    }
+
+    #quote-box.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .golden-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(1.35rem, 2.8vw, 2.35rem);
+      font-weight: 600;
+      line-height: 1.45;
+      color: #ffefc8;
+      text-shadow:
+        0 0 16px rgba(255, 200, 92, 0.9),
+        0 0 36px rgba(255, 148, 196, 0.65),
+        0 2px 12px rgba(0, 0, 0, 0.9);
+    }
+
+    #final-frame-wrapper {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6vh 4vw;
+      opacity: 0;
+      transform: scale(0.94);
+      transition: opacity 2.4s ease, transform 2.4s ease;
+    }
+
+    #final-frame-wrapper.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .golden-frame {
+      position: relative;
+      max-width: 720px;
+      width: 92%;
+      padding: clamp(1.8rem, 4vw, 3.2rem) clamp(1.6rem, 4.5vw, 3.6rem);
+      background: radial-gradient(ellipse at center, rgba(22, 12, 28, 0.66) 0%, rgba(10, 6, 18, 0.80) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 214, 122, 0.82);
+      border-radius: 22px;
+      box-shadow:
+        0 0 38px rgba(255, 204, 102, 0.45),
+        inset 0 0 32px rgba(255, 196, 120, 0.24),
+        0 20px 60px rgba(0, 0, 0, 0.78);
+    }
+
+    .golden-frame::before {
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border: 1px solid rgba(255, 224, 152, 0.5);
+      border-radius: 15px;
+      pointer-events: none;
+    }
+
+    .corner-ornament {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-color: #ffd77a;
+      border-style: solid;
+      filter: drop-shadow(0 0 8px rgba(255, 215, 122, 0.85));
+    }
+    .corner-tl { top: -4px; left: -4px; border-width: 3px 0 0 3px; border-top-left-radius: 14px; }
+    .corner-tr { top: -4px; right: -4px; border-width: 3px 3px 0 0; border-top-right-radius: 14px; }
+    .corner-bl { bottom: -4px; left: -4px; border-width: 0 0 3px 3px; border-bottom-left-radius: 14px; }
+    .corner-br { bottom: -4px; right: -4px; border-width: 0 3px 3px 0; border-bottom-right-radius: 14px; }
+
+    .final-heading {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.25rem, 2.6vw, 2.15rem);
+      line-height: 1.4;
+      margin-bottom: 1.2rem;
+      background: linear-gradient(135deg, #fff6da 0%, #ffd275 45%, #ff9ec7 80%, #ffe6a8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 14px rgba(255, 200, 102, 0.55));
+    }
+
+    .final-divider {
+      width: 140px;
+      height: 1px;
+      margin: 0 auto 1.25rem;
+      background: linear-gradient(90deg, transparent, #ffd57e, transparent);
+    }
+
+    .final-body {
+      font-size: clamp(1.15rem, 2.1vw, 1.65rem);
+      line-height: 1.65;
+      color: #fff2dc;
+      text-shadow: 0 0 14px rgba(255, 196, 120, 0.45);
+    }
+
+    #controls {
+      position: fixed;
+      bottom: 7vh;
+      right: 2.2vw;
+      z-index: 20;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      pointer-events: auto;
+    }
+
+    .ctrl-btn {
+      background: rgba(18, 12, 28, 0.72);
+      border: 1px solid rgba(255, 214, 130, 0.55);
+      color: #ffe8b8;
+      padding: 8px 15px;
+      border-radius: 999px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.98rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: all 0.3s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(255, 204, 112, 0.25);
+      border-color: #ffd77e;
+      box-shadow: 0 0 16px rgba(255, 204, 112, 0.5);
+    }
+
+    #timeline-bar {
+      position: fixed;
+      bottom: 5.5vh;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.14);
+      z-index: 20;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    #timeline-progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9ec7, #ffd77e, #fff3c4);
+      box-shadow: 0 0 12px #ffd77e;
+      transition: width 0.1s linear;
+    }
+
+    #hint-text {
+      position: fixed;
+      bottom: 7.4vh;
+      left: 2.2vw;
+      z-index: 15;
+      font-size: 0.95rem;
+      color: rgba(255, 236, 198, 0.85);
+      letter-spacing: 0.06em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+    #hint-text.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="vignette"></div>
+  <div class="letterbox top"></div>
+  <div class="letterbox bottom"></div>
+
+  <div id="ui-overlay">
+    <div id="title-screen">
+      <div class="royal-subtitle">A Royal Botanical Kingdom</div>
+      <h1 class="main-title">A GARDEN FOR MY PRINCESS — SABUUUU 👑🌷</h1>
+    </div>
+
+    <div id="quote-box">
+      <p class="golden-quote">
+        “Because even a thousand flowers<br />
+        could never compete with your beauty.”
+      </p>
+    </div>
+
+    <div id="final-frame-wrapper">
+      <div class="golden-frame">
+        <span class="corner-ornament corner-tl"></span>
+        <span class="corner-ornament corner-tr"></span>
+        <span class="corner-ornament corner-bl"></span>
+        <span class="corner-ornament corner-br"></span>
+        <h2 class="final-heading">
+          Happy National Princess Day,<br />
+          MY DEAREST SABUUUU! 👑❤️
+        </h2>
+        <div class="final-divider"></div>
+        <p class="final-body">
+          This vast, endless garden is yours.<br />
+          Every flower, every sparkle,<br />
+          and every little detail<br />
+          is dedicated to you.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="hint-text">Drag to explore the vast garden • Scroll to zoom • Free exploration unlocked</div>
+
+  <div id="controls">
+    <button class="ctrl-btn" id="audio-btn">♪ Enable Music</button>
+    <button class="ctrl-btn" id="replay-btn">↻ Replay Journey</button>
+  </div>
+
+  <div id="timeline-bar" title="Click to seek">
+    <div id="timeline-progress"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    // =========================================================================
+    // 1. SCENE, CAMERA & RENDERER SETUP (EXPANSIVE WORLD SCALE)
+    // =========================================================================
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x02030a);
+    // Light, distant fog so the huge garden & every flower stays crystal clear
+    scene.fog = new THREE.FogExp2(0x080716, 0.0042);
+
+    const camera = new THREE.PerspectiveCamera(
+      48,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      650
+    );
+    camera.position.set(0, 3.8, 56);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.28;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI * 0.485;
+    controls.minDistance = 2.5;
+    controls.maxDistance = 85;
+    controls.enabled = false;
+
+    // =========================================================================
+    // 2. PROCEDURAL GLOW TEXTURES
+    // =========================================================================
+    function createGlowTexture(innerColor, midColor, outerColor) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grad.addColorStop(0, innerColor);
+      grad.addColorStop(0.35, midColor);
+      grad.addColorStop(1, outerColor);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 128, 128);
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    const goldGlowTex = createGlowTexture(
+      'rgba(255, 250, 224, 1)',
+      'rgba(255, 206, 98, 0.58)',
+      'rgba(255, 180, 60, 0)'
+    );
+
+    // =========================================================================
+    // 3. BRIGHT, CRISP ROYAL LIGHTING SO FLOWERS ARE CLEARLY VISIBLE
+    // =========================================================================
+    const ambientLight = new THREE.AmbientLight(0x463a66, 0.95);
+    scene.add(ambientLight);
+
+    const moonLight = new THREE.DirectionalLight(0xdce6ff, 0.95);
+    moonLight.position.set(-28, 48, -32);
+    scene.add(moonLight);
+
+    const goldenSunLight = new THREE.DirectionalLight(0xffd68a, 0.65);
+    goldenSunLight.position.set(24, 42, 28);
+    goldenSunLight.castShadow = true;
+    goldenSunLight.shadow.mapSize.width = 2048;
+    goldenSunLight.shadow.mapSize.height = 2048;
+    scene.add(goldenSunLight);
+
+    // Rim backlight to make every flower petal silhouette sparkle
+    const rimLight = new THREE.DirectionalLight(0xffb8e0, 0.55);
+    rimLight.position.set(0, 24, -45);
+    scene.add(rimLight);
+
+    // Central Lotus Point Light
+    const lotusLight = new THREE.PointLight(0xffc2e0, 0.8, 28);
+    lotusLight.position.set(0, 1.8, 0);
+    scene.add(lotusLight);
+
+    // Crown Point Light
+    const crownLight = new THREE.PointLight(0xffd46b, 0.0, 38);
+    crownLight.position.set(0, 5.4, 0);
+    scene.add(crownLight);
+
+    // =========================================================================
+    // 4. MASSIVE MIDNIGHT SKY & 5,000 GOLDEN STARS
+    // =========================================================================
+    const starCount = 5000;
+    const starGeo = new THREE.BufferGeometry();
+    const starPositions = new Float32Array(starCount * 3);
+
+    for (let i = 0; i < starCount; i++) {
+      const r = 130 + Math.random() * 240;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 0.95);
+      starPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      starPositions[i * 3 + 1] = r * Math.cos(phi) + 6;
+      starPositions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMat = new THREE.PointsMaterial({
+      color: 0xffe49e,
+      size: 1.25,
+      map: goldGlowTex,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const stars = new THREE.Points(starGeo, starMat);
+    scene.add(stars);
+
+    // =========================================================================
+    // 5. VAST GARDEN GROUND, GRAND CRYSTAL POND & LONG GOLDEN PATHWAY
+    // =========================================================================
+    const groundGeo = new THREE.CircleGeometry(180, 128);
+    const groundMat = new THREE.MeshStandardMaterial({
+      color: 0x111f1c,
+      roughness: 0.88,
+      metalness: 0.05
+    });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Grand Crystal-Clear Pond at the Center (radius 7.2)
+    const pondRadius = 7.2;
+    const pondBedGeo = new THREE.CircleGeometry(pondRadius, 72);
+    const pondBedMat = new THREE.MeshStandardMaterial({
+      color: 0x0a2540,
+      roughness: 0.35,
+      metalness: 0.3
+    });
+    const pondBed = new THREE.Mesh(pondBedGeo, pondBedMat);
+    pondBed.rotation.x = -Math.PI / 2;
+    pondBed.position.y = 0.01;
+    scene.add(pondBed);
+
+    const waterGeo = new THREE.CircleGeometry(pondRadius, 96);
+    const waterMat = new THREE.MeshPhysicalMaterial({
+      color: 0x8ad4ff,
+      emissive: 0x1c3152,
+      emissiveIntensity: 0.42,
+      roughness: 0.07,
+      metalness: 0.15,
+      transmission: 0.65,
+      transparent: true,
+      opacity: 0.86,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.05
+    });
+    const waterSurface = new THREE.Mesh(waterGeo, waterMat);
+    waterSurface.rotation.x = -Math.PI / 2;
+    waterSurface.position.y = 0.07;
+    scene.add(waterSurface);
+
+    // Glowing Golden Pond Rim
+    const pondRimGeo = new THREE.RingGeometry(pondRadius - 0.12, pondRadius + 0.25, 96);
+    const pondRimMat = new THREE.MeshBasicMaterial({
+      color: 0xffd77e,
+      transparent: true,
+      opacity: 0.58,
+      side: THREE.DoubleSide
+    });
+    const pondRim = new THREE.Mesh(pondRimGeo, pondRimMat);
+    pondRim.rotation.x = -Math.PI / 2;
+    pondRim.position.y = 0.08;
+    scene.add(pondRim);
+
+    // Long Grand Golden Pathway leading from z = 52 to z = 7.8
+    const pathwayGroup = new THREE.Group();
+    scene.add(pathwayGroup);
+
+    const pathLength = 44.0;
+    const pathGeo = new THREE.PlaneGeometry(3.6, pathLength, 16, 64);
+    const pathMat = new THREE.MeshStandardMaterial({
+      color: 0x382818,
+      emissive: 0xffbe52,
+      emissiveIntensity: 0.0,
+      roughness: 0.32,
+      metalness: 0.65,
+      transparent: true,
+      opacity: 0.0
+    });
+    const pathwayMesh = new THREE.Mesh(pathGeo, pathMat);
+    pathwayMesh.rotation.x = -Math.PI / 2;
+    pathwayMesh.position.set(0, 0.03, 7.8 + pathLength / 2);
+    pathwayGroup.add(pathwayMesh);
+
+    // 36 Luminous Golden Stepping Stones along the Grand Pathway
+    const stones = [];
+    for (let i = 0; i < 36; i++) {
+      const z = 50.5 - i * 1.18;
+      const xOffset = Math.sin(i * 0.55) * 0.45;
+      const stoneGeo = new THREE.CylinderGeometry(0.55, 0.64, 0.08, 24);
+      const stoneMat = new THREE.MeshStandardMaterial({
+        color: 0xffe8ad,
+        emissive: 0xffbe55,
+        emissiveIntensity: 0.0,
+        roughness: 0.22,
+        metalness: 0.72,
+        transparent: true,
+        opacity: 0
+      });
+      const stone = new THREE.Mesh(stoneGeo, stoneMat);
+      stone.position.set(xOffset, 0.045, z);
+      stone.scale.set(1.3, 1, 0.88);
+      pathwayGroup.add(stone);
+      stones.push({ mesh: stone, mat: stoneMat, index: i });
+    }
+
+    // =========================================================================
+    // 6. LARGE, HIGH-DEFINITION 3D FLOWERS (CRYSTAL CLEAR PETALS & DETAILS)
+    // =========================================================================
+    function createPetalGeometry(width, height, cupDepth, curlBack) {
+      const geo = new THREE.PlaneGeometry(width, height, 10, 14);
+      geo.translate(0, height * 0.5, 0);
+      const pos = geo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const u = x / (width * 0.5);
+        const v = y / height;
+
+        const widthProfile = Math.sin(Math.pow(v, 0.66) * Math.PI);
+        pos.setX(i, x * widthProfile);
+
+        const cup = (1 - u * u) * cupDepth * Math.sin(v * Math.PI);
+        const arch = Math.sin(v * Math.PI * 0.85) * cupDepth * 0.7 - Math.pow(v, 2.2) * curlBack;
+        pos.setZ(i, cup + arch);
+      }
+      geo.computeVertexNormals();
+      return geo;
+    }
+
+    // --- A. GRAND HERO CENTRAL PINK LOTUS (Scaled Up for Majestic Clarity) ---
+    const heroLotusGroup = new THREE.Group();
+    heroLotusGroup.position.set(0, 0.16, 0);
+    heroLotusGroup.scale.setScalar(1.38);
+    scene.add(heroLotusGroup);
+
+    const lilyPadGeo = new THREE.CircleGeometry(1.75, 48, 0.18, Math.PI * 2 - 0.36);
+    const lilyPadMat = new THREE.MeshStandardMaterial({
+      color: 0x226e44,
+      roughness: 0.42,
+      metalness: 0.08,
+      side: THREE.DoubleSide
+    });
+    const lilyPad = new THREE.Mesh(lilyPadGeo, lilyPadMat);
+    lilyPad.rotation.x = -Math.PI / 2;
+    lilyPad.position.y = -0.04;
+    heroLotusGroup.add(lilyPad);
+
+    const stamenCoreGeo = new THREE.SphereGeometry(0.28, 24, 16);
+    stamenCoreGeo.scale(1, 0.68, 1);
+    const stamenCoreMat = new THREE.MeshStandardMaterial({
+      color: 0xffd859,
+      emissive: 0xffae19,
+      emissiveIntensity: 0.75,
+      roughness: 0.25
+    });
+    const stamenCore = new THREE.Mesh(stamenCoreGeo, stamenCoreMat);
+    stamenCore.position.y = 0.24;
+    heroLotusGroup.add(stamenCore);
+
+    for (let i = 0; i < 32; i++) {
+      const ang = (i / 32) * Math.PI * 2;
+      const filGeo = new THREE.CylinderGeometry(0.01, 0.014, 0.3, 6);
+      const fil = new THREE.Mesh(filGeo, stamenCoreMat);
+      fil.position.set(Math.cos(ang) * 0.25, 0.28, Math.sin(ang) * 0.25);
+      fil.rotation.z = -Math.cos(ang) * 0.36;
+      fil.rotation.x = Math.sin(ang) * 0.36;
+      heroLotusGroup.add(fil);
+    }
+
+    const lotusRings = [
+      { count: 8,  w: 0.46, h: 0.98, closedTilt: 0.14, openTilt: 0.52, color: 0xffbddb, emissive: 0x6b1d42 },
+      { count: 10, w: 0.56, h: 1.15, closedTilt: 0.18, openTilt: 0.82, color: 0xff9cc8, emissive: 0x5c1638 },
+      { count: 12, w: 0.65, h: 1.26, closedTilt: 0.22, openTilt: 1.12, color: 0xff82b9, emissive: 0x4d112e },
+      { count: 14, w: 0.72, h: 1.34, closedTilt: 0.26, openTilt: 1.38, color: 0xfa6ba8, emissive: 0x3d0c24 }
+    ];
+
+    const heroPetals = [];
+    const dewDropGeo = new THREE.SphereGeometry(0.025, 10, 10);
+    const dewDropMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      roughness: 0.02,
+      metalness: 0.1,
+      transmission: 0.9,
+      transparent: true,
+      opacity: 0.92
+    });
+
+    lotusRings.forEach((ring, rIdx) => {
+      const pGeo = createPetalGeometry(ring.w, ring.h, 0.2, 0.15);
+      const pMat = new THREE.MeshPhysicalMaterial({
+        color: ring.color,
+        emissive: ring.emissive,
+        emissiveIntensity: 0.45,
+        roughness: 0.22,
+        metalness: 0.04,
+        sheen: 0.9,
+        sheenColor: new THREE.Color(0xffebf5),
+        clearcoat: 0.38,
+        clearcoatRoughness: 0.2,
+        side: THREE.DoubleSide
+      });
+
+      for (let i = 0; i < ring.count; i++) {
+        const angle = (i / ring.count) * Math.PI * 2 + rIdx * 0.26;
+        const pivot = new THREE.Group();
+        pivot.rotation.y = angle;
+        pivot.position.set(
+          Math.cos(angle) * (0.11 + rIdx * 0.05),
+          0.08,
+          -Math.sin(angle) * (0.11 + rIdx * 0.05)
+        );
+
+        const petalMesh = new THREE.Mesh(pGeo, pMat);
+        petalMesh.rotation.x = ring.closedTilt;
+        petalMesh.castShadow = true;
+
+        if (rIdx >= 1 && i % 2 === 0) {
+          const drop = new THREE.Mesh(dewDropGeo, dewDropMat);
+          drop.position.set((Math.random() - 0.5) * 0.16, ring.h * (0.55 + Math.random() * 0.25), 0.07);
+          petalMesh.add(drop);
+        }
+
+        pivot.add(petalMesh);
+        heroLotusGroup.add(pivot);
+
+        heroPetals.push({
+          mesh: petalMesh,
+          ringIdx: rIdx,
+          petalIdx: i,
+          closedTilt: ring.closedTilt,
+          openTilt: ring.openTilt,
+          sparkleReleased: false
+        });
+      }
+    });
+
+    // --- B. LARGE, CLEARLY VISIBLE GARDEN FLOWER GENERATORS ---
+    const gardenFlowers = [];
+    const stemMat = new THREE.MeshStandardMaterial({ color: 0x2e6e3f, roughness: 0.65 });
+    const leafGeo = createPetalGeometry(0.24, 0.52, 0.08, 0.18);
+
+    function addStemAndLeaves(group, height) {
+      const sGeo = new THREE.CylinderGeometry(0.032, 0.046, height, 6);
+      sGeo.translate(0, height * 0.5, 0);
+      const stem = new THREE.Mesh(sGeo, stemMat);
+      group.add(stem);
+
+      // Two lush green leaves on the stem for extra botanical realism & visibility
+      for (let l = 0; l < 2; l++) {
+        const leaf = new THREE.Mesh(leafGeo, stemMat);
+        leaf.position.y = height * (0.32 + l * 0.24);
+        leaf.rotation.y = l * Math.PI + 0.5;
+        leaf.rotation.x = 0.75;
+        group.add(leaf);
+      }
+    }
+
+    // Shared larger, crisp geometries so every flower type is unmistakable from close & far
+    const smallLotusPetalGeo = createPetalGeometry(0.38, 0.78, 0.14, 0.10);
+    const lilyPetalGeo       = createPetalGeometry(0.34, 0.96, 0.12, 0.30);
+    const rosePetalGeo       = createPetalGeometry(0.42, 0.54, 0.22, 0.06);
+    const tulipPetalGeo      = createPetalGeometry(0.36, 0.76, 0.22, -0.05);
+    const floretGeo          = new THREE.SphereGeometry(0.095, 8, 8);
+
+    // Shared luminous materials (brighter diffuse + rich self-glow so petals pop clearly)
+    const matPinkLotus = new THREE.MeshStandardMaterial({
+      color: 0xffa6ce, emissive: 0x63193b, emissiveIntensity: 0.45, roughness: 0.25, side: THREE.DoubleSide
+    });
+    const matWhiteLotus = new THREE.MeshStandardMaterial({
+      color: 0xffffff, emissive: 0x3d3552, emissiveIntensity: 0.42, roughness: 0.25, side: THREE.DoubleSide
+    });
+    const matWhiteLily = new THREE.MeshStandardMaterial({
+      color: 0xffffff, emissive: 0x453e61, emissiveIntensity: 0.46, roughness: 0.24, side: THREE.DoubleSide
+    });
+    const matPinkRose = new THREE.MeshStandardMaterial({
+      color: 0xff85b8, emissive: 0x611536, emissiveIntensity: 0.45, roughness: 0.28, side: THREE.DoubleSide
+    });
+    const matPeachRose = new THREE.MeshStandardMaterial({
+      color: 0xffba99, emissive: 0x632917, emissiveIntensity: 0.45, roughness: 0.28, side: THREE.DoubleSide
+    });
+    const matPinkTulip = new THREE.MeshStandardMaterial({
+      color: 0xff7ab8, emissive: 0x61173b, emissiveIntensity: 0.46, roughness: 0.24, side: THREE.DoubleSide
+    });
+    const matLavender = new THREE.MeshStandardMaterial({
+      color: 0xc299ff, emissive: 0x482682, emissiveIntensity: 0.55, roughness: 0.4
+    });
+    const matBabysBreath = new THREE.MeshStandardMaterial({
+      color: 0xffffff, emissive: 0x6a6587, emissiveIntensity: 0.58, roughness: 0.28
+    });
+    const matForgetMeNot = new THREE.MeshStandardMaterial({
+      color: 0x7ac8ff, emissive: 0x1d5894, emissiveIntensity: 0.58, roughness: 0.28
+    });
+
+    function createMiniLotus(x, z, isPink) {
+      const g = new THREE.Group();
+      g.position.set(x, 0.09, z);
+      const pad = new THREE.Mesh(
+        new THREE.CircleGeometry(0.95, 24, 0.2, Math.PI * 2 - 0.4),
+        lilyPadMat
+      );
+      pad.rotation.x = -Math.PI / 2;
+      g.add(pad);
+
+      const mat = isPink ? matPinkLotus : matWhiteLotus;
+      for (let r = 0; r < 2; r++) {
+        const cnt = r === 0 ? 6 : 8;
+        for (let i = 0; i < cnt; i++) {
+          const p = new THREE.Mesh(smallLotusPetalGeo, mat);
+          p.rotation.y = (i / cnt) * Math.PI * 2 + r * 0.4;
+          p.rotation.x = r === 0 ? 0.55 : 0.98;
+          g.add(p);
+        }
+      }
+      const core = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 10), stamenCoreMat);
+      core.position.y = 0.16;
+      g.add(core);
+      scene.add(g);
+      return g;
+    }
+
+    function createWhiteLily(x, z) {
+      const g = new THREE.Group();
+      const h = 1.45 + Math.random() * 0.55;
+      g.position.set(x, 0, z);
+      addStemAndLeaves(g, h);
+
+      const head = new THREE.Group();
+      head.position.y = h;
+      head.rotation.x = 0.34;
+      for (let i = 0; i < 6; i++) {
+        const p = new THREE.Mesh(lilyPetalGeo, matWhiteLily);
+        p.rotation.y = (i / 6) * Math.PI * 2;
+        p.rotation.x = 0.88;
+        head.add(p);
+      }
+      const core = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), stamenCoreMat);
+      head.add(core);
+      g.add(head);
+      scene.add(g);
+      return g;
+    }
+
+    function createRose(x, z, isPeach) {
+      const g = new THREE.Group();
+      const h = 1.15 + Math.random() * 0.45;
+      g.position.set(x, 0, z);
+      addStemAndLeaves(g, h);
+
+      const head = new THREE.Group();
+      head.position.y = h;
+      head.rotation.x = 0.22;
+      const mat = isPeach ? matPeachRose : matPinkRose;
+
+      for (let r = 0; r < 3; r++) {
+        const cnt = 5 + r * 2;
+        for (let i = 0; i < cnt; i++) {
+          const p = new THREE.Mesh(rosePetalGeo, mat);
+          p.rotation.y = (i / cnt) * Math.PI * 2 + r * 0.5;
+          p.rotation.x = 0.28 + r * 0.28;
+          p.scale.setScalar(0.68 + r * 0.22);
+          head.add(p);
+        }
+      }
+      g.add(head);
+      scene.add(g);
+      return g;
+    }
+
+    function createPinkTulip(x, z) {
+      const g = new THREE.Group();
+      const h = 1.25 + Math.random() * 0.45;
+      g.position.set(x, 0, z);
+      addStemAndLeaves(g, h);
+
+      const head = new THREE.Group();
+      head.position.y = h;
+      for (let i = 0; i < 6; i++) {
+        const p = new THREE.Mesh(tulipPetalGeo, matPinkTulip);
+        p.rotation.y = (i / 6) * Math.PI * 2 + (i % 2) * 0.16;
+        p.rotation.x = 0.24;
+        head.add(p);
+      }
+      g.add(head);
+      scene.add(g);
+      return g;
+    }
+
+    function createLavender(x, z) {
+      const g = new THREE.Group();
+      const h = 1.35 + Math.random() * 0.5;
+      g.position.set(x, 0, z);
+      addStemAndLeaves(g, h);
+
+      for (let i = 0; i < 14; i++) {
+        const bud = new THREE.Mesh(floretGeo, matLavender);
+        const ang = i * 1.45;
+        const y = h * 0.56 + (i / 14) * (h * 0.58);
+        bud.position.set(Math.cos(ang) * 0.085, y, Math.sin(ang) * 0.085);
+        bud.scale.setScalar(1.1 - (i / 16) * 0.45);
+        g.add(bud);
+      }
+      scene.add(g);
+      return g;
+    }
+
+    function createBabysBreath(x, z) {
+      const g = new THREE.Group();
+      const h = 1.05 + Math.random() * 0.38;
+      g.position.set(x, 0, z);
+      addStemAndLeaves(g, h);
+
+      for (let i = 0; i < 18; i++) {
+        const dot = new THREE.Mesh(floretGeo, matBabysBreath);
+        dot.scale.setScalar(0.65);
+        dot.position.set(
+          (Math.random() - 0.5) * 0.65,
+          h + (Math.random() - 0.2) * 0.46,
+          (Math.random() - 0.5) * 0.65
+        );
+        g.add(dot);
+      }
+      scene.add(g);
+      return g;
+    }
+
+    function createForgetMeNot(x, z) {
+      const g = new THREE.Group();
+      const h = 0.78 + Math.random() * 0.32;
+      g.position.set(x, 0, z);
+      addStemAndLeaves(g, h);
+
+      for (let c = 0; c < 5; c++) {
+        const cluster = new THREE.Group();
+        cluster.position.set(
+          (Math.random() - 0.5) * 0.36,
+          h + Math.random() * 0.22,
+          (Math.random() - 0.5) * 0.36
+        );
+        for (let p = 0; p < 5; p++) {
+          const ang = (p / 5) * Math.PI * 2;
+          const pet = new THREE.Mesh(floretGeo, matForgetMeNot);
+          pet.scale.set(0.8, 0.3, 0.8);
+          pet.position.set(Math.cos(ang) * 0.085, 0, Math.sin(ang) * 0.085);
+          cluster.add(pet);
+        }
+        const center = new THREE.Mesh(floretGeo, stamenCoreMat);
+        center.scale.setScalar(0.48);
+        cluster.add(center);
+        g.add(cluster);
+      }
+      scene.add(g);
+      return g;
+    }
+
+    function registerFlower(mesh, delay, targetScale = 1.0) {
+      mesh.scale.setScalar(0.001);
+      gardenFlowers.push({
+        mesh,
+        delay,
+        targetScale,
+        swayOffset: Math.random() * Math.PI * 2
+      });
+    }
+
+    // 1) Lush Glowing Pathway Borders (46 grand flowers lining both sides of the path)
+    for (let i = 0; i < 46; i++) {
+      const z = 50.0 - i * 0.92;
+      const side = i % 2 === 0 ? -1 : 1;
+      const x = side * (2.25 + (i % 3) * 0.45);
+      const introDelay = 2.0 + (46 - i) * 0.11;
+
+      const f1 = i % 4 === 0 ? createRose(x, z, i % 8 === 0) :
+                 i % 4 === 1 ? createPinkTulip(x, z) :
+                 i % 4 === 2 ? createWhiteLily(x, z) : createBabysBreath(x, z);
+      registerFlower(f1, introDelay, 1.05);
+    }
+
+    // 2) Pond Pink & White Lotuses (14 large lotuses floating across the crystal pond)
+    for (let i = 0; i < 14; i++) {
+      const ang = (i / 14) * Math.PI * 2 + 0.2;
+      const rad = 3.2 + (i % 3) * 1.15;
+      const lx = Math.cos(ang) * rad;
+      const lz = Math.sin(ang) * rad;
+      const lotus = createMiniLotus(lx, lz, i % 2 === 0);
+      registerFlower(lotus, 16.2 + i * 0.16, 1.08);
+    }
+
+    // 3) MASSIVE HEART-SHAPED ROYAL GARDEN (560 large, distinct flowers forming a giant wide heart!)
+    const heartFlowerCount = 560;
+    for (let i = 0; i < heartFlowerCount; i++) {
+      const t = (i / heartFlowerCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.06;
+      // Wide multi-layered heart band from band = 0.68 up to 1.48 (spans ~46 meters across!)
+      const band = 0.68 + Math.random() * 0.80;
+
+      const hx = 16 * Math.pow(Math.sin(t), 3) * band;
+      const hz = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * band + 1.5;
+
+      const distFromCenter = Math.hypot(hx, hz);
+      if (distFromCenter < pondRadius + 0.75) continue;
+      if (hz > 7.6 && Math.abs(hx) < 2.0) continue;
+
+      const typeRoll = i % 7;
+      let flowerMesh;
+      if (typeRoll === 0) flowerMesh = createWhiteLily(hx, hz);
+      else if (typeRoll === 1) flowerMesh = createRose(hx, hz, false); // soft pink rose
+      else if (typeRoll === 2) flowerMesh = createRose(hx, hz, true);  // peach rose
+      else if (typeRoll === 3) flowerMesh = createLavender(hx, hz);
+      else if (typeRoll === 4) flowerMesh = createBabysBreath(hx, hz);
+      else if (typeRoll === 5) flowerMesh = createPinkTulip(hx, hz);
+      else flowerMesh = createForgetMeNot(hx, hz);
+
+      const bloomDelay = 17.2 + Math.random() * 5.8;
+      registerFlower(flowerMesh, bloomDelay, 1.05 + Math.random() * 0.42);
+    }
+
+    // 4) EXPANSIVE SURROUNDING BOTANICAL MEADOWS (420 additional large flowers extending 68m out!)
+    for (let i = 0; i < 420; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const rad = 22.0 + Math.random() * 44.0;
+      const mx = Math.cos(ang) * rad;
+      const mz = Math.sin(ang) * rad;
+      if (mz > 7.5 && Math.abs(mx) < 2.6) continue;
+
+      const pick = i % 6;
+      let f;
+      if (pick === 0) f = createLavender(mx, mz);
+      else if (pick === 1) f = createBabysBreath(mx, mz);
+      else if (pick === 2) f = createForgetMeNot(mx, mz);
+      else if (pick === 3) f = createPinkTulip(mx, mz);
+      else if (pick === 4) f = createWhiteLily(mx, mz);
+      else f = createRose(mx, mz, i % 12 === 0);
+
+      registerFlower(f, 18.0 + Math.random() * 6.5, 1.15 + Math.random() * 0.5);
+    }
+
+    // =========================================================================
+    // 7. GOLDEN PARTICLES, LOTUS SPARKLES, FLOATING PETALS & 3D BUTTERFLIES
+    // =========================================================================
+    // A. Ambient Breeze Golden Particles (1,400 particles across the huge garden)
+    const breezeCount = 1400;
+    const breezeGeo = new THREE.BufferGeometry();
+    const breezePos = new Float32Array(breezeCount * 3);
+    const breezeVel = [];
+
+    for (let i = 0; i < breezeCount; i++) {
+      breezePos[i * 3] = (Math.random() - 0.5) * 95;
+      breezePos[i * 3 + 1] = 0.3 + Math.random() * 14;
+      breezePos[i * 3 + 2] = -35 + Math.random() * 95;
+      breezeVel.push({
+        vx: 0.02 + Math.random() * 0.03,
+        vy: (Math.random() - 0.5) * 0.012,
+        vz: -0.01 + (Math.random() - 0.5) * 0.018,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+    breezeGeo.setAttribute('position', new THREE.BufferAttribute(breezePos, 3));
+    const breezeMat = new THREE.PointsMaterial({
+      color: 0xffdf85,
+      size: 0.34,
+      map: goldGlowTex,
+      transparent: true,
+      opacity: 0.0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const breezeParticles = new THREE.Points(breezeGeo, breezeMat);
+    scene.add(breezeParticles);
+
+    // B. Lotus Bloom Rising Golden Sparkles (650 particles)
+    const sparkleCount = 650;
+    const sparkleGeo = new THREE.BufferGeometry();
+    const sparklePos = new Float32Array(sparkleCount * 3);
+    const sparkleData = [];
+
+    for (let i = 0; i < sparkleCount; i++) {
+      sparklePos[i * 3] = 0;
+      sparklePos[i * 3 + 1] = -10;
+      sparklePos[i * 3 + 2] = 0;
+      sparkleData.push({
+        active: false,
+        life: 0,
+        maxLife: 2.5 + Math.random() * 3.0,
+        vx: 0,
+        vy: 0,
+        vz: 0
+      });
+    }
+    sparkleGeo.setAttribute('position', new THREE.BufferAttribute(sparklePos, 3));
+    const sparkleMat = new THREE.PointsMaterial({
+      color: 0xffe896,
+      size: 0.42,
+      map: goldGlowTex,
+      transparent: true,
+      opacity: 0.96,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+    const lotusSparkles = new THREE.Points(sparkleGeo, sparkleMat);
+    scene.add(lotusSparkles);
+
+    let sparkleCursor = 0;
+    function emitLotusSparkles(count, burstRadius = 0.85, upwardSpeed = 1.1) {
+      for (let n = 0; n < count; n++) {
+        const idx = sparkleCursor;
+        sparkleCursor = (sparkleCursor + 1) % sparkleCount;
+        const d = sparkleData[idx];
+        const ang = Math.random() * Math.PI * 2;
+        const rad = Math.random() * burstRadius;
+        sparklePos[idx * 3] = Math.cos(ang) * rad;
+        sparklePos[idx * 3 + 1] = 0.3 + Math.random() * 0.4;
+        sparklePos[idx * 3 + 2] = Math.sin(ang) * rad;
+
+        d.active = true;
+        d.life = 0;
+        d.maxLife = 2.6 + Math.random() * 3.0;
+        d.vx = Math.cos(ang) * (0.22 + Math.random() * 0.42);
+        d.vy = upwardSpeed * (0.65 + Math.random() * 0.95);
+        d.vz = Math.sin(ang) * (0.22 + Math.random() * 0.42);
+      }
+      sparkleGeo.attributes.position.needsUpdate = true;
+    }
+
+    // C. Floating Pastel Flower Petals (400 petals drifting across the huge garden)
+    const floatingPetals = [];
+    const floatPetalGeo = createPetalGeometry(0.24, 0.36, 0.07, 0.05);
+    const floatPetalMat = new THREE.MeshStandardMaterial({
+      color: 0xffbedc,
+      emissive: 0x6b2246,
+      emissiveIntensity: 0.45,
+      roughness: 0.28,
+      transparent: true,
+      opacity: 0.0,
+      side: THREE.DoubleSide
+    });
+
+    for (let i = 0; i < 400; i++) {
+      const m = new THREE.Mesh(floatPetalGeo, floatPetalMat);
+      m.position.set(
+        (Math.random() - 0.5) * 68,
+        0.5 + Math.random() * 14,
+        (Math.random() - 0.5) * 68
+      );
+      m.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+      scene.add(m);
+      floatingPetals.push({
+        mesh: m,
+        fallSpeed: 0.32 + Math.random() * 0.4,
+        driftPhase: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 2.2
+      });
+    }
+
+    // D. 48 Graceful 3D Butterflies Fluttering Around the Flowers
+    const butterflies = [];
+    const wingGeo = new THREE.CircleGeometry(0.26, 12);
+    wingGeo.scale(1.32, 0.85, 1);
+    wingGeo.translate(0.22, 0, 0);
+
+    const butterflyColors = [0xffc4e1, 0xffe49e, 0xd8bfff, 0xa8e2ff];
+    for (let i = 0; i < 48; i++) {
+      const bGroup = new THREE.Group();
+      const bMat = new THREE.MeshStandardMaterial({
+        color: butterflyColors[i % butterflyColors.length],
+        emissive: butterflyColors[i % butterflyColors.length],
+        emissiveIntensity: 0.42,
+        roughness: 0.28,
+        side: THREE.DoubleSide
+      });
+
+      const leftWing = new THREE.Mesh(wingGeo, bMat);
+      const rightWing = new THREE.Mesh(wingGeo, bMat);
+      rightWing.scale.x = -1;
+
+      bGroup.add(leftWing);
+      bGroup.add(rightWing);
+      bGroup.scale.setScalar(0.001);
+      scene.add(bGroup);
+
+      butterflies.push({
+        group: bGroup,
+        leftWing,
+        rightWing,
+        orbitRadius: 3.5 + Math.random() * 24.0,
+        orbitSpeed: (0.2 + Math.random() * 0.32) * (i % 2 === 0 ? 1 : -1),
+        orbitPhase: Math.random() * Math.PI * 2,
+        baseHeight: 1.1 + Math.random() * 3.2,
+        flapSpeed: 11 + Math.random() * 5
+      });
+    }
+
+    // =========================================================================
+    // 8. GRAND GLOWING ROYAL CROWN ABOVE THE CENTRAL LOTUS
+    // =========================================================================
+    const crownGroup = new THREE.Group();
+    crownGroup.position.set(0, 4.3, 0);
+    crownGroup.scale.setScalar(0.001);
+    scene.add(crownGroup);
+
+    const crownGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xffe28a,
+      emissive: 0xffae1d,
+      emissiveIntensity: 0.8,
+      roughness: 0.15,
+      metalness: 0.92
+    });
+
+    const crownBand = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.88, 0.75, 0.3, 36, 1, true),
+      crownGoldMat
+    );
+    crownGroup.add(crownBand);
+
+    const crownRimBottom = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.04, 12, 36), crownGoldMat);
+    crownRimBottom.rotation.x = Math.PI / 2;
+    crownRimBottom.position.y = -0.15;
+    crownGroup.add(crownRimBottom);
+
+    const crownRimTop = new THREE.Mesh(new THREE.TorusGeometry(0.88, 0.038, 12, 36), crownGoldMat);
+    crownRimTop.rotation.x = Math.PI / 2;
+    crownRimTop.position.y = 0.15;
+    crownGroup.add(crownRimTop);
+
+    const jewelPinkMat = new THREE.MeshPhysicalMaterial({
+      color: 0xff69b4,
+      emissive: 0xff2a85,
+      emissiveIntensity: 0.7,
+      roughness: 0.05,
+      metalness: 0.1
+    });
+
+    const spireCount = 8;
+    for (let i = 0; i < spireCount; i++) {
+      const ang = (i / spireCount) * Math.PI * 2;
+      const isMain = i % 2 === 0;
+      const spireH = isMain ? 0.72 : 0.46;
+
+      const spire = new THREE.Mesh(
+        new THREE.ConeGeometry(isMain ? 0.17 : 0.12, spireH, 12),
+        crownGoldMat
+      );
+      spire.position.set(Math.cos(ang) * 0.85, 0.15 + spireH * 0.45, Math.sin(ang) * 0.85);
+      spire.rotation.z = -Math.cos(ang) * 0.18;
+      spire.rotation.x = Math.sin(ang) * 0.18;
+      crownGroup.add(spire);
+
+      const tipOrb = new THREE.Mesh(
+        new THREE.SphereGeometry(isMain ? 0.072 : 0.05, 12, 12),
+        isMain ? jewelPinkMat : crownGoldMat
+      );
+      tipOrb.position.set(Math.cos(ang) * 0.92, 0.18 + spireH * 0.92, Math.sin(ang) * 0.92);
+      crownGroup.add(tipOrb);
+
+      const bandJewel = new THREE.Mesh(new THREE.OctahedronGeometry(0.07, 0), jewelPinkMat);
+      bandJewel.position.set(Math.cos(ang) * 0.82, 0, Math.sin(ang) * 0.82);
+      crownGroup.add(bandJewel);
+    }
+
+    const crownHalo = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: goldGlowTex,
+        color: 0xffd770,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      })
+    );
+    crownHalo.scale.set(4.6, 4.6, 1);
+    crownGroup.add(crownHalo);
+
+    // =========================================================================
+    // 9. ETHEREAL HARP MUSIC SYNTHESIZER
+    // =========================================================================
+    let audioCtx = null;
+    let isAudioPlaying = false;
+    let harpInterval = null;
+    const audioBtn = document.getElementById('audio-btn');
+
+    function startEtherealMusic() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      if (isAudioPlaying) return;
+      isAudioPlaying = true;
+      audioBtn.textContent = '♪ Music On';
+
+      const notes = [261.63, 329.63, 392.00, 493.88, 587.33, 659.25, 783.99];
+      let step = 0;
+
+      harpInterval = setInterval(() => {
+        if (!isAudioPlaying || !audioCtx) return;
+        const now = audioCtx.currentTime;
+        const freq = notes[step % notes.length] * (step % 14 >= 7 ? 1.5 : 1);
+        step++;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.045, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 2.9);
+      }, 680);
+    }
+
+    function stopEtherealMusic() {
+      isAudioPlaying = false;
+      audioBtn.textContent = '♪ Enable Music';
+      if (harpInterval) clearInterval(harpInterval);
+    }
+
+    audioBtn.addEventListener('click', () => {
+      if (isAudioPlaying) stopEtherealMusic();
+      else startEtherealMusic();
+    });
+
+    // =========================================================================
+    // 10. 42-SECOND CINEMATIC TIMELINE & CAMERA CHOREOGRAPHY
+    // =========================================================================
+    const TOTAL_DURATION = 42.0;
+    let elapsedTime = 0;
+    let lastTimestamp = performance.now();
+    let finalBurstDone = false;
+
+    const titleScreen = document.getElementById('title-screen');
+    const quoteBox = document.getElementById('quote-box');
+    const finalFrameWrapper = document.getElementById('final-frame-wrapper');
+    const hintText = document.getElementById('hint-text');
+    const timelineProgress = document.getElementById('timeline-progress');
+    const timelineBar = document.getElementById('timeline-bar');
+    const replayBtn = document.getElementById('replay-btn');
+
+    function smoothstep(edge0, edge1, x) {
+      const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+      return t * t * (3 - 2 * t);
+    }
+
+    function lerpVec3(a, b, t) {
+      return new THREE.Vector3(
+        a.x + (b.x - a.x) * t,
+        a.y + (b.y - a.y) * t,
+        a.z + (b.z - a.z) * t
+      );
+    }
+
+    function resetExperience() {
+      elapsedTime = 0;
+      finalBurstDone = false;
+      controls.enabled = false;
+      titleScreen.classList.remove('visible');
+      quoteBox.classList.remove('visible');
+      finalFrameWrapper.classList.remove('visible');
+      hintText.classList.remove('visible');
+      heroPetals.forEach(p => { p.sparkleReleased = false; });
+    }
+
+    replayBtn.addEventListener('click', resetExperience);
+
+    timelineBar.addEventListener('click', (e) => {
+      const rect = timelineBar.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      elapsedTime = ratio * TOTAL_DURATION;
+      if (elapsedTime < 38) {
+        controls.enabled = false;
+        hintText.classList.remove('visible');
+      }
+    });
+
+    // =========================================================================
+    // 11. MAIN ANIMATION LOOP
+    // =========================================================================
+    function animate(now) {
+      requestAnimationFrame(animate);
+
+      const dt = Math.min((now - lastTimestamp) / 1000, 0.05);
+      lastTimestamp = now;
+      elapsedTime += dt;
+
+      const t = elapsedTime;
+      const progressPct = Math.min(100, (t / TOTAL_DURATION) * 100);
+      timelineProgress.style.width = `${progressPct}%`;
+
+      // ACT I: THE INTRODUCTION (0s - 8s)
+      const starFade = smoothstep(0.5, 4.5, t);
+      starMat.opacity = starFade * 0.94;
+
+      const breezeFade = smoothstep(1.2, 5.0, t);
+      breezeMat.opacity = breezeFade * 0.88;
+
+      const pathReveal = smoothstep(1.8, 6.0, t);
+      pathMat.opacity = pathReveal * 0.68;
+      pathMat.emissiveIntensity = pathReveal * (0.5 + Math.sin(t * 2.2) * 0.08);
+
+      stones.forEach((s) => {
+        const sProg = smoothstep(1.8 + s.index * 0.1, 3.0 + s.index * 0.1, t);
+        s.mat.opacity = sProg * 0.94;
+        s.mat.emissiveIntensity = sProg * 0.78;
+      });
+
+      if (t >= 1.5 && t <= 7.8) titleScreen.classList.add('visible');
+      else titleScreen.classList.remove('visible');
+
+      // ACT II: THE LOTUS BLOOM (8s - 18s)
+      const bloomGlobal = smoothstep(8.0, 16.5, t);
+      lotusLight.intensity = 0.8 + bloomGlobal * 2.8 + Math.sin(t * 3.0) * 0.15;
+
+      heroPetals.forEach((p) => {
+        const ringDelay = (3 - p.ringIdx) * 1.45 + (p.petalIdx % 3) * 0.18;
+        const pProgress = smoothstep(8.2 + ringDelay, 11.4 + ringDelay, t);
+        const breathe = Math.sin(t * 1.8 + p.petalIdx) * 0.025 * pProgress;
+        p.mesh.rotation.x = p.closedTilt + (p.openTilt - p.closedTilt) * pProgress + breathe;
+
+        if (pProgress > 0.45 && !p.sparkleReleased && t < 18.0) {
+          p.sparkleReleased = true;
+          emitLotusSparkles(10, 0.75, 0.95);
+        }
+      });
+
+      if (t >= 15.8 && t <= 18.2 && Math.random() < 0.7) {
+        emitLotusSparkles(14, 1.1, 1.45);
+      }
+
+      // ACT III: THE FLOWER SURPRISE (18s - 26s)
+      gardenFlowers.forEach((f) => {
+        const grow = smoothstep(f.delay, f.delay + 2.2, t);
+        const elastic = grow < 1 ? grow * (1 + Math.sin(grow * Math.PI) * 0.12) : 1;
+        f.mesh.scale.setScalar(Math.max(0.001, f.targetScale * elastic));
+        f.mesh.rotation.z = Math.sin(t * 1.5 + f.swayOffset) * 0.045 * grow;
+        f.mesh.rotation.x = Math.cos(t * 1.3 + f.swayOffset) * 0.035 * grow;
+      });
+
+      const surpriseFade = smoothstep(18.0, 21.5, t);
+      floatPetalMat.opacity = surpriseFade * 0.86;
+
+      butterflies.forEach((b) => {
+        b.group.scale.setScalar(Math.max(0.001, surpriseFade * 1.1));
+        const ang = t * b.orbitSpeed + b.orbitPhase;
+        b.group.position.set(
+          Math.cos(ang) * b.orbitRadius,
+          b.baseHeight + Math.sin(t * 2.4 + b.orbitPhase) * 0.55,
+          Math.sin(ang) * b.orbitRadius
+        );
+        b.group.rotation.y = -ang + (b.orbitSpeed > 0 ? 0 : Math.PI);
+        const flap = Math.sin(t * b.flapSpeed) * 0.78;
+        b.leftWing.rotation.z = flap;
+        b.rightWing.rotation.z = -flap;
+      });
+
+      // ACT IV: THE PRINCESS MOMENT (26s - 33s)
+      const princessGlow = smoothstep(25.0, 28.5, t);
+      goldenSunLight.intensity = 0.65 + princessGlow * 1.65;
+      ambientLight.intensity = 0.95 + princessGlow * 0.5;
+      scene.background.lerpColors(
+        new THREE.Color(0x02030a),
+        new THREE.Color(0x180e29),
+        princessGlow
+      );
+      scene.fog.color.copy(scene.background);
+
+      const crownAppear = smoothstep(26.2, 28.8, t);
+      crownGroup.scale.setScalar(Math.max(0.001, crownAppear * 1.15));
+      crownGroup.position.y = 4.2 + Math.sin(t * 2.0) * 0.16;
+      crownGroup.rotation.y = t * 0.48;
+      crownLight.intensity = crownAppear * 3.2;
+
+      if (t >= 27.2 && t <= 33.4) quoteBox.classList.add('visible');
+      else quoteBox.classList.remove('visible');
+
+      // ACT V: THE FINAL SCENE (33s - 42s+)
+      if (t >= 34.4) {
+        finalFrameWrapper.classList.add('visible');
+        if (!finalBurstDone) {
+          finalBurstDone = true;
+          emitLotusSparkles(110, 1.4, 1.5);
+        }
+      } else {
+        finalFrameWrapper.classList.remove('visible');
+      }
+
+      // SMOOTH CINEMATIC CAMERA CHOREOGRAPHY FOR THE EXPANSIVE GARDEN
+      if (!controls.enabled) {
+        let camPos = new THREE.Vector3();
+        let lookTarget = new THREE.Vector3(0, 0.9, 0);
+
+        if (t < 8.0) {
+          // Act I: Travel down the long golden pathway surrounded by blooming flowers
+          const p = smoothstep(0, 8.0, t);
+          camPos = lerpVec3(
+            new THREE.Vector3(0, 3.6, 55.0),
+            new THREE.Vector3(0, 2.8, 10.5),
+            p
+          );
+          lookTarget = lerpVec3(
+            new THREE.Vector3(0, 1.4, 22.0),
+            new THREE.Vector3(0, 0.6, 0),
+            p
+          );
+        } else if (t < 18.0) {
+          // Act II: Intimate orbit around the giant central pink lotus
+          const p = smoothstep(8.0, 18.0, t);
+          const orbitAng = p * Math.PI * 0.75;
+          const radius = 10.5 - p * 4.8; // glides to 5.7m
+          camPos.set(
+            Math.sin(orbitAng) * radius,
+            2.8 - p * 0.5,
+            Math.cos(orbitAng) * radius
+          );
+          lookTarget.set(0, 0.75, 0);
+        } else if (t < 26.0) {
+          // Act III: Sweeping low-altitude glide right above the lush flower beds so every bloom is crystal clear
+          const p = smoothstep(18.0, 26.0, t);
+          const sweepAng = Math.PI * 0.75 + p * Math.PI * 0.75;
+          const radius = 5.7 + p * 14.5;
+          camPos.set(
+            Math.sin(sweepAng) * radius,
+            2.3 + p * 4.2,
+            Math.cos(sweepAng) * radius
+          );
+          lookTarget.set(0, 1.0, 0);
+        } else if (t < 33.5) {
+          // Act IV: Rise high above the massive botanical kingdom to reveal the giant heart arrangement
+          const p = smoothstep(26.0, 33.5, t);
+          const startPos = new THREE.Vector3(
+            Math.sin(Math.PI * 1.5) * 20.2,
+            6.5,
+            Math.cos(Math.PI * 1.5) * 20.2
+          );
+          const aerialHeartPos = new THREE.Vector3(0, 29.0, 24.5);
+          camPos = lerpVec3(startPos, aerialHeartPos, p);
+          lookTarget = lerpVec3(
+            new THREE.Vector3(0, 1.0, 0),
+            new THREE.Vector3(0, 2.0, 1.2),
+            p
+          );
+        } else if (t < 38.5) {
+          // Act V: Zoom down toward the central pink lotus & crown
+          const p = smoothstep(33.5, 38.5, t);
+          camPos = lerpVec3(
+            new THREE.Vector3(0, 29.0, 24.5),
+            new THREE.Vector3(0, 3.4, 7.2),
+            p
+          );
+          lookTarget = lerpVec3(
+            new THREE.Vector3(0, 2.0, 1.2),
+            new THREE.Vector3(0, 2.2, 0),
+            p
+          );
+        } else {
+          controls.enabled = true;
+          controls.target.set(0, 2.2, 0);
+          hintText.classList.add('visible');
+        }
+
+        if (!controls.enabled) {
+          camera.position.copy(camPos);
+          camera.lookAt(lookTarget);
+        }
+      } else {
+        controls.update();
+      }
+
+      // PARTICLE & WATER UPDATES
+      waterMat.emissiveIntensity = 0.38 + Math.sin(t * 2.4) * 0.08 + princessGlow * 0.25;
+      pondRimMat.opacity = 0.5 + Math.sin(t * 2.0) * 0.14 + princessGlow * 0.3;
+
+      const bPos = breezeGeo.attributes.position.array;
+      for (let i = 0; i < breezeCount; i++) {
+        const v = breezeVel[i];
+        bPos[i * 3] += v.vx + Math.sin(t * 0.9 + v.phase) * 0.015;
+        bPos[i * 3 + 1] += v.vy + Math.cos(t * 1.1 + v.phase) * 0.01;
+        bPos[i * 3 + 2] += v.vz;
+
+        if (bPos[i * 3] > 48) bPos[i * 3] = -48;
+        if (bPos[i * 3 + 1] < 0.3) bPos[i * 3 + 1] = 13.5;
+        if (bPos[i * 3 + 1] > 14) bPos[i * 3 + 1] = 0.4;
+      }
+      breezeGeo.attributes.position.needsUpdate = true;
+
+      const sPos = sparkleGeo.attributes.position.array;
+      for (let i = 0; i < sparkleCount; i++) {
+        const d = sparkleData[i];
+        if (!d.active) continue;
+        d.life += dt;
+        if (d.life >= d.maxLife) {
+          d.active = false;
+          sPos[i * 3 + 1] = -10;
+          continue;
+        }
+        sPos[i * 3] += d.vx * dt + Math.sin(t * 3 + i) * 0.008;
+        sPos[i * 3 + 1] += d.vy * dt;
+        sPos[i * 3 + 2] += d.vz * dt + Math.cos(t * 3 + i) * 0.008;
+      }
+      sparkleGeo.attributes.position.needsUpdate = true;
+
+      floatingPetals.forEach((fp) => {
+        fp.mesh.position.y -= fp.fallSpeed * dt;
+        fp.mesh.position.x += Math.sin(t * 0.8 + fp.driftPhase) * 0.015;
+        fp.mesh.position.z += Math.cos(t * 0.7 + fp.driftPhase) * 0.015;
+        fp.mesh.rotation.x += fp.rotSpeed * dt;
+        fp.mesh.rotation.y += fp.rotSpeed * 0.8 * dt;
+        if (fp.mesh.position.y < 0.15) {
+          fp.mesh.position.y = 12.5 + Math.random() * 2;
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
